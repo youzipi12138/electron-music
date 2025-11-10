@@ -11,10 +11,10 @@ let mainWindow: BrowserWindow | null = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    minWidth: 800,
-    minHeight: 600,
+    width: 1056,
+    height: 752,
+    minWidth: 1056,
+    minHeight: 752,
     frame: false, // 隐藏系统标题栏
     titleBarStyle: 'hidden',
     webPreferences: {

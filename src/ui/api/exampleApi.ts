@@ -2,11 +2,12 @@ import axios from 'axios';
 
 // 创建 axios 实例
 const apiClient = axios.create({
-  baseURL: 'https://api.example.com',
+  baseURL: 'http://localhost:3000',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 // 请求拦截器
@@ -36,4 +37,21 @@ apiClient.interceptors.response.use(
   }
 );
 
-export default apiClient;
+// 封装 GET 方法
+const get = <T = unknown>(url: string, params?: unknown): Promise<T> => {
+  return apiClient<T>({
+    method: 'GET',
+    url,
+    params,
+  });
+};
+const post = <T = unknown>(url: string, data?: unknown): Promise<T> => {
+  return apiClient<T>({
+    method: 'POST',
+    url,
+    data,
+  });
+};
+export { get, post };
+
+// export default apiClient;
