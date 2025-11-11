@@ -133,11 +133,13 @@ const Header = () => {
         >
           <Input
             prefix={<SearchIcon size={20} className='text-gray-500' />}
+            allowClear={true}
             style={{ width: SEARCH_WIDTH, height: 35 }}
             placeholder='请输入内容'
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             onPressEnter={handlePressEnter}
+            onClear={() => setSearchValue('')}
           />
         </Popover>
 

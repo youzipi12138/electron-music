@@ -3,6 +3,7 @@ import {
   ListMusic,
   MessageCircleMore,
   Play,
+  Pause,
   Repeat,
   SkipBack,
   SkipForward,
@@ -11,15 +12,68 @@ import {
   Download,
   SquareArrowOutUpRight,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import PlayerDrawer from './PlayerDrawer';
+import usePlayStore from '@/store/usePlayStore';
+import { formatSecondsToMMSS } from '@/ustils/Formdata';
 
 const coverUrl = 'https://i.pravatar.cc/80?img=15';
 
 export default function Player() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const { url, isStart, setIsStart } = usePlayStore();
+
+  // 控制播放/暂停
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isStart) {
+        audioRef.current.play().catch((error) => {
+          console.error('播放失败:', error);
+        });
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [isStart, url]);
+
+  // 监听音频时间更新
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+    };
+
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
+    };
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+
+    return () => {
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+    };
+  }, [url]);
+
+  // 计算进度条百分比
+  // isFinite(duration) 是 JavaScript 中的一个全局函数调用，用于判断变量 duration 的值是否为一个有限的数字（finite number）
+  const progress =
+    duration > 0 && isFinite(duration) ? (currentTime / duration) * 100 : 0;
+
+  // 处理播放按钮点击
+  const handlePlay = () => {
+    setIsStart(!isStart);
+  };
+
   return (
     <div className='h-[80px] bg-[#1f2129] text-white px-6 flex  shadow-inner'>
+      <audio ref={audioRef} src={url}></audio>
       <div className='flex items-center w-[160px]'>
         <div className='left relative mr-4'>
           <span className='absolute inset-0 rounded-full bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 blur-sm opacity-80' />
@@ -51,8 +105,15 @@ export default function Player() {
         >
           <Heart size={24} />
           <SkipBack size={24} />
-          <div className='rounded-full bg-[#f43f5e] w-[40px] h-[40px] flex items-center justify-center'>
-            <Play size={24} fill='currentColor' strokeWidth={0} />
+          <div
+            className='rounded-full bg-[#f43f5e] w-[40px] h-[40px] flex items-center justify-center cursor-pointer'
+            onClick={handlePlay}
+          >
+            {isStart ? (
+              <Pause size={24} fill='currentColor' strokeWidth={0} />
+            ) : (
+              <Play size={24} fill='currentColor' strokeWidth={0} />
+            )}
           </div>
           <SkipForward size={24} />
           <Repeat size={24} />
@@ -61,11 +122,18 @@ export default function Player() {
           className='flex items-center gap-3 w-[400px]'
           onClick={(e) => e.stopPropagation()}
         >
-          <span className='text-xs text-gray-400'>00:02</span>
+          <span className='text-xs text-gray-400'>
+            {formatSecondsToMMSS(isFinite(currentTime) ? currentTime : 0)}
+          </span>
           <div className='h-1 flex-1 rounded-full bg-[#2f313b] overflow-hidden'>
-            <div className='h-full w-1/5 rounded-full bg-[#f43f5e]' />
+            <div
+              className='h-full rounded-full bg-[#f43f5e] transition-all'
+              style={{ width: `${progress}%` }}
+            />
           </div>
-          <span className='text-xs text-gray-400'>03:47</span>
+          <span className='text-xs text-gray-400'>
+            {formatSecondsToMMSS(isFinite(duration) ? duration : 0)}
+          </span>
         </div>
       </div>
       <div className='right h-full flex items-center w-[160px]'>
