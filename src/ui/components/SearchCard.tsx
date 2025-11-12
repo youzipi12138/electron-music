@@ -1,6 +1,7 @@
 import React from 'react';
 import { Play } from 'lucide-react';
 import { formatFansNumber } from '@/ustils/Formdata';
+import { useSearchStore } from '@/store/useSearchStore';
 interface SearchCardProps {
   category?: string;
   name: string;
@@ -17,6 +18,7 @@ export const SearchCard: React.FC<SearchCardProps> = ({
   avatar = 'https://i.pravatar.cc/100?img=15',
   stats,
 }) => {
+  const { searchValueStore } = useSearchStore();
   return (
     <div className='w-[385px] h-[140px] rounded-lg flex items-center px-4 gap-4 hover:bg-gray-200 cursor-pointer group'>
       <div className='img w-[110px] h-[110px] rounded-full overflow-hidden relative'>

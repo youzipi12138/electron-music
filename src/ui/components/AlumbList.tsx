@@ -1,15 +1,19 @@
 import { ChevronRight, Play } from 'lucide-react';
 import SearchApi, { type AlbumItem } from '@/api/Search';
+import { formatDateYMD } from '@/ustils/Formdata';
 import { useEffect, useState } from 'react';
+import { useSearchStore } from '@/store/useSearchStore';
 export const AlumbList = () => {
   const [musicList, setMusicList] = useState<AlbumItem[]>([]);
+  const { searchValueStore } = useSearchStore();
 
   useEffect(() => {
-    SearchApi.searchAlbum('棉花糖', 6, 0).then((res) => {
+    if (!searchValueStore) return;
+    SearchApi.searchAlbum(searchValueStore, 6, 0).then((res) => {
       setMusicList(res.result.albums);
       console.log(res.result.albums);
     });
-  }, []);
+  }, [searchValueStore]);
   return (
     <div>
       <div className='text-[20px] font-bold text-gray-700 flex items-center mt-5 '>
@@ -42,9 +46,10 @@ export const AlumbList = () => {
               <span className='text-sm font-bold text-ellipsis overflow-hidden whitespace-nowrap'>
                 {pl.name}
               </span>
-              <span className='text-sm text-gray-500 text-ellipsis overflow-hidden whitespace-nowrap'>
+              <div className='text-sm text-gray-500 text-ellipsis overflow-hidden whitespace-nowrap'>
                 {pl.artist.name}
-              </span>
+                <span className='ml-3'>{formatDateYMD(pl.publishTime)}</span>
+              </div>
             </div>
           </div>
         ))}

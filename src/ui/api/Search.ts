@@ -102,6 +102,19 @@ export interface SearchAlbumResponse {
   };
   code: number;
 }
+export interface SearchSuggestionItem {
+  keyword: string;
+  type: number;
+  alg: string;
+  lastKeyword: string;
+  feature: string;
+}
+export interface SearchSuggestionResponse {
+  code: number;
+  result: {
+    allMatch: SearchSuggestionItem[];
+  };
+}
 
 const SearchApi = {
   hotMusic() {
@@ -145,6 +158,12 @@ const SearchApi = {
       type: SearchType.ALBUM,
       limit,
       offset,
+    });
+  },
+  searchSuccess(keywords: string) {
+    return get<SearchSuggestionResponse>('/search/suggest', {
+      keywords,
+      type: 'mobile' as const,
     });
   },
 };

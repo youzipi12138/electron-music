@@ -2,15 +2,18 @@ import { ChevronRight, Play } from 'lucide-react';
 import SearchApi, { type Playlist } from '@/api/Search';
 import { useEffect, useState } from 'react';
 import { formatPlayCount } from '@/ustils/Formdata';
+import { useSearchStore } from '@/store/useSearchStore';
 export const MusicList = () => {
   const [musicList, setMusicList] = useState<Playlist[]>([]);
+  const { searchValueStore } = useSearchStore();
 
   useEffect(() => {
-    SearchApi.searchPlaylist('棉花糖', 6, 0).then((res) => {
+    if (!searchValueStore) return;
+    SearchApi.searchPlaylist(searchValueStore, 6, 0).then((res) => {
       setMusicList(res.result.playlists);
       console.log(res.result.playlists);
     });
-  }, []);
+  }, [searchValueStore]);
   return (
     <div>
       <div className='text-[20px] font-bold text-gray-700 flex items-center mt-5 '>

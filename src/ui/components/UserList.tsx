@@ -2,14 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { ChevronRight, Play } from 'lucide-react';
 import SearchApi, { type Userprofile } from '@/api/Search';
 import { defaultAvatar } from '../../assets';
+import { useSearchStore } from '@/store/useSearchStore';
 export const UserList = () => {
   const [userList, setUserList] = useState<Userprofile[]>([]);
+  const { searchValueStore } = useSearchStore();
   useEffect(() => {
-    SearchApi.searchUser('棉花糖', 6, 0).then((res) => {
+    if (!searchValueStore) return;
+    SearchApi.searchUser(searchValueStore, 6, 0).then((res) => {
       setUserList(res.result.userprofiles);
       console.log(10000, res);
     });
-  }, []);
+  }, [searchValueStore]);
   return (
     <div>
       <div className='text-[20px] font-bold text-gray-700 flex items-center mt-5 '>

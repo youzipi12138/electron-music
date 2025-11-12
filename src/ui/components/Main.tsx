@@ -1,23 +1,15 @@
-import Header from './header';
+import Header from './Header';
 import { SearchBar } from '@/components/SearchBar';
-import SingleMusic from '@/components/SingleMusic';
-import { MusicList } from './MusicList';
-import { SingleList } from './SingleList';
-import { UserList } from './UserList';
-import { AlumbList } from '@/components/AlumbList';
 export default function Main() {
   return (
-    <div className='flex-1 overflow-auto bg-gray-50'>
-      <div className='p-6'>
-        <Header />
-        <section>
+    <div className='flex-1 flex flex-col bg-gray-50 overflow-hidden'>
+      <div className='shrink-0 bg-gray-50 sticky top-0 z-10'>
+        <div className='p-6 pb-0'>
+          <Header />
+        </div>
+        <div className='px-6 bg-gray-50'>
           <SearchBar />
-          <SingleMusic />
-          <MusicList />
-          <SingleList />
-          <AlumbList />
-          <UserList />
-        </section>
+        </div>
       </div>
     </div>
   );

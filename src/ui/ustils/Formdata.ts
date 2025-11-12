@@ -22,4 +22,19 @@ const formatPlayCount = (count: number) => {
   }
   return `${count}`;
 };
-export { formatSecondsToMMSS, formatFansNumber, formatPlayCount };
+
+// 将时间戳格式化为 YYYY-MM-DD
+function formatDateYMD(timestampMs: number) {
+  const date = new Date(timestampMs);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export {
+  formatSecondsToMMSS,
+  formatFansNumber,
+  formatPlayCount,
+  formatDateYMD,
+};

@@ -1,15 +1,17 @@
 import { ChevronRight, Download, Heart, MoreHorizontal } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import SearchApi, { SearchType, type Song } from '@/api/Search';
-
+import { useSearchStore } from '@/store/useSearchStore';
 const SingleMusic = () => {
   const [singleMusic, setSingleMusic] = useState<Song[]>([]);
+  const { searchValueStore } = useSearchStore();
   useEffect(() => {
-    SearchApi.search('棉花糖', SearchType.SONG).then((res) => {
+    SearchApi.search(searchValueStore, SearchType.SONG).then((res) => {
       setSingleMusic(res.result.songs.slice(0, 6));
       console.log(res.result.songs);
     });
-  }, []);
+  }, [searchValueStore]);
+
   return (
     <div className='w-full cursor-pointer'>
       <div className='text-[20px] font-bold text-gray-700 flex items-center '>

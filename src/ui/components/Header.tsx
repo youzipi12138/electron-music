@@ -4,8 +4,9 @@ import { ChevronLeft, MicIcon, SearchIcon, UserRound } from 'lucide-react';
 import useUserStore from '@/store/useUserStore';
 import { useState, useEffect } from 'react';
 import QrModal from './QrModal';
-import Search from '@/api/Search';
-
+import Search, { type SearchSuggestionItem } from '@/api/Search';
+import SearchApi from '@/api/Search';
+import { useSearchStore } from '@/store/useSearchStore';
 const SEARCH_WIDTH = 258;
 
 // type SearchResponse = {
@@ -25,7 +26,10 @@ const Header = () => {
   const [musicList, setMusicList] = useState<MusicItem[]>([]);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [searchValue, setSearchValue] = useState('');
-
+  const [searchSuggestion, setSearchSuggestion] = useState<
+    SearchSuggestionItem[]
+  >([]);
+  const { searchValueStore, setSearchValueStore } = useSearchStore();
   // 从 localStorage 读取搜索历史
   useEffect(() => {
     const history = localStorage.getItem(SEARCH_HISTORY_KEY);
@@ -37,6 +41,12 @@ const Header = () => {
       }
     }
   }, []);
+  useEffect(() => {
+    if (!searchValue) return;
+    SearchApi.searchSuccess(searchValue).then((res) => {
+      setSearchSuggestion(res.result.allMatch as SearchSuggestionItem[]);
+    });
+  }, [searchValue]);
 
   // 保存搜索关键词到 localStorage
   const saveSearchKeyword = (keyword: string) => {
@@ -53,10 +63,13 @@ const Header = () => {
 
   // 处理搜索
   const handleSearch = (keyword: string) => {
-    saveSearchKeyword(keyword);
-    setSearchValue('');
+    // saveSearchKeyword(keyword);
+    // setSearchValue('');
     // TODO: 执行搜索逻辑
     console.log('搜索关键词:', keyword);
+    setSearchValue(keyword);
+    setSearchValueStore(keyword);
+    // setSearchValueStore(keyword);
   };
 
   // 处理输入框回车
@@ -65,6 +78,26 @@ const Header = () => {
     if (target.value.trim()) {
       handleSearch(target.value.trim());
     }
+  };
+
+  // 高亮匹配的文本
+  const highlightText = (text: string, keyword: string) => {
+    if (!keyword.trim()) return text;
+    const regex = new RegExp(
+      `(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`,
+      'gi'
+    );
+    const parts = text.split(regex);
+    return parts.map((part, index) => {
+      const isMatch = part.toLowerCase() === keyword.toLowerCase();
+      return isMatch ? (
+        <span key={index} className='text-[#1d4ed8]'>
+          {part}
+        </span>
+      ) : (
+        <span key={index}>{part}</span>
+      );
+    });
   };
 
   const content = (
@@ -95,6 +128,7 @@ const Header = () => {
         <p
           className='h-[60px] hover:bg-gray-200 cursor-pointer flex items-center px-[20px]'
           key={index}
+          onClick={() => handleSearch(item.searchWord)}
         >
           {index + 1 <= 3 ? (
             <span className='font-semibold mr-4 text-[#f43f5e] cursor-pointer'>
@@ -105,9 +139,29 @@ const Header = () => {
               {index + 1}
             </span>
           )}
-          <span>{item.searchWord}</span>
+          <span>{highlightText(item.searchWord, searchValue)}</span>
         </p>
       ))}
+    </div>
+  );
+  const contentSuccess = (
+    <div>
+      <h4 className='font-semibold text-gray-600 text-[20px] px-[20px] mt-[16px]'>
+        猜你想搜
+      </h4>
+      <div className='body'>
+        {searchSuggestion?.map((item, index) => (
+          <div
+            className='hover:bg-gray-200 cursor-pointer h-[33px] flex items-center'
+            key={index}
+            onClick={() => handleSearch(item.keyword)}
+          >
+            <span className='ml-[35px]'>
+              {highlightText(item.keyword, searchValue)}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
   useEffect(() => {
@@ -125,9 +179,9 @@ const Header = () => {
           />
         </div>
         <Popover
-          content={content}
+          content={searchValue ? contentSuccess : content}
           overlayStyle={{ width: 344 }}
-          overlayInnerStyle={{ height: 620, overflowY: 'auto', padding: 0 }}
+          overlayInnerStyle={{ maxHeight: 620, overflowY: 'auto', padding: 0 }}
           arrow={false}
           trigger={'click'}
         >
