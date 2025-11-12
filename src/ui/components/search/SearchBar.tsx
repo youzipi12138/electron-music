@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';
-import { SearchCard } from '@/components/SearchCard';
+import { SearchCard } from '@/components/search/SearchCard';
 import { useSearchStore } from '@/store/useSearchStore';
-import { SongListTable } from '@/components/SongListTable';
-import SingleMusic from '@/components/SingleMusic';
-import { MusicList } from './MusicList';
-import { SingleList } from './SingleList';
-import { AlumbList } from '@/components/AlumbList';
-import { UserList } from './UserList';
+import { SongListTable } from '@/components/player/SongListTable';
+import SingleMusic from '@/components/player/SingleMusic';
+import { MusicList } from '@/components/player/MusicList';
+import { SingleList } from '@/components/player/SingleList';
+import { AlumbList } from '@/components/media/AlumbList';
+import { UserList } from '@/components/user/UserList';
 export const SearchBar = () => {
   const [activeKey, setActiveKey] = useState<string>('综合');
   const { searchValueStore } = useSearchStore();

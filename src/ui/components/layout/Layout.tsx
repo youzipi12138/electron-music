@@ -1,7 +1,7 @@
-import Side from '@/components/Side';
-import Main from '@/components/Main';
-import TitleBar from '@/components/TitleBar';
-import Player from '@/components/Player';
+import Side from '@/components/layout/Side';
+import Main from '@/components/layout/Main';
+import TitleBar from '@/components/layout/TitleBar';
+import Player from '@/components/player/Player';
 
 export default function Layout() {
   return (

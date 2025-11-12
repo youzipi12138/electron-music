@@ -3,7 +3,7 @@ import { Popover } from 'antd';
 import { ChevronLeft, MicIcon, SearchIcon, UserRound } from 'lucide-react';
 import useUserStore from '@/store/useUserStore';
 import { useState, useEffect } from 'react';
-import QrModal from './QrModal';
+import QrModal from '@/components/user/QrModal';
 import Search, { type SearchSuggestionItem } from '@/api/Search';
 import SearchApi from '@/api/Search';
 import { useSearchStore } from '@/store/useSearchStore';

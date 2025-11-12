@@ -1,5 +1,5 @@
 import Header from './Header';
-import { SearchBar } from '@/components/SearchBar';
+import { SearchBar } from '@/components/search/SearchBar';
 export default function Main() {
   return (
     <div className='flex-1 flex flex-col bg-gray-50 overflow-hidden'>
