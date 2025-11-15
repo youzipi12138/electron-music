@@ -3,13 +3,14 @@ import { useEffect, useState } from 'react';
 import SearchApi, { SearchType, type Song } from '@/api/Search';
 import { useSearchStore } from '@/store/useSearchStore';
 import { Play } from 'lucide-react';
+import { PlayButton } from '../common/PlayButton';
 const SingleMusic = () => {
   const [singleMusic, setSingleMusic] = useState<Song[]>([]);
   const { searchValueStore } = useSearchStore();
   useEffect(() => {
     SearchApi.search(searchValueStore, SearchType.SONG).then((res) => {
       setSingleMusic(res.result.songs.slice(0, 6));
-      console.log(res.result.songs);
+      console.log(200000, res.result.songs);
     });
   }, [searchValueStore]);
 
@@ -33,7 +34,7 @@ const SingleMusic = () => {
                   className='w-full h-full object-cover'
                 />
                 <div className='absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200'>
-                  <Play size={28} className='text-white ml-1' fill='white' />
+                  <PlayButton musicId={item.id} />
                 </div>
               </div>
               <div className='flex flex-col gap-1'>

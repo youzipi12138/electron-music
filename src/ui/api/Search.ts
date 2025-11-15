@@ -21,6 +21,7 @@ export type Album = {
 };
 
 export type Song = {
+  id: number;
   name: string;
   artists: Artist[];
   album: Album;
@@ -115,6 +116,10 @@ export interface SearchSuggestionResponse {
     allMatch: SearchSuggestionItem[];
   };
 }
+export interface GetSongUrlResponse {
+  code: number;
+  data: { url: string }[];
+}
 
 const SearchApi = {
   hotMusic() {
@@ -165,6 +170,9 @@ const SearchApi = {
       keywords,
       type: 'mobile' as const,
     });
+  },
+  getSongUrl(id: number): Promise<GetSongUrlResponse> {
+    return get<GetSongUrlResponse>(`/song/url?id=${id}`);
   },
 };
 
