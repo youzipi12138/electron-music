@@ -24,6 +24,7 @@ export const PlayButton = ({
     setMusicName,
     setArtistName,
     setCoverUrl,
+    addHistoryItem,
   } = usePlayStore();
 
   const handlePlay = async () => {
@@ -37,6 +38,12 @@ export const PlayButton = ({
       setMusicName(musicName);
       setArtistName(artistName);
       setCoverUrl(coverImgurl);
+      addHistoryItem({
+        musicId,
+        musicName,
+        artistName,
+        coverUrl: coverImgurl,
+      });
       try {
         const res = await SearchApi.getSongUrl(musicId);
         // 从响应中获取URL（data是一个数组，取第一个元素的url）

@@ -69,6 +69,7 @@ const Header = () => {
     console.log('搜索关键词:', keyword);
     setSearchValue(keyword);
     setSearchValueStore(keyword);
+
     // setSearchValueStore(keyword);
   };
 

@@ -156,7 +156,10 @@ export default function Player() {
       </div>
       <div className='right h-full flex items-center w-[160px]'>
         <div className='mr-4 cursor-pointer'>
-          <ListMusic size={24} onClick={() => setSideDrawerOpen(true)} />
+          <ListMusic
+            size={24}
+            onClick={() => setSideDrawerOpen((prev) => !prev)}
+          />
         </div>
         <div className='mr-2'>
           <Volume2 size={24} />
