@@ -13,7 +13,13 @@ import {
   SquareArrowOutUpRight,
   Repeat1,
 } from 'lucide-react';
-import { useState, useRef, useEffect, type MouseEvent } from 'react';
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  type MouseEvent,
+} from 'react';
 import PlayerDrawer from './PlayerDrawer';
 import usePlayStore from '@/store/usePlayStore';
 import { formatSecondsToMMSS } from '@/ustils/Formdata';
@@ -90,38 +96,50 @@ export default function Player() {
     setIsStart(!isStart);
   };
 
-  const playHistoryItem = async (
-    item:
-      | {
-          musicId: number;
-          musicName: string;
-          artistName: string;
-          coverUrl: string;
+  const playHistoryItem = useCallback(
+    async (
+      item:
+        | {
+            musicId: number;
+            musicName: string;
+            artistName: string;
+            coverUrl: string;
+          }
+        | undefined
+    ) => {
+      if (!item) return;
+      setLoading(true);
+      setCurrentMusicId(item.musicId);
+      setMusicName(item.musicName);
+      setArtistName(item.artistName);
+      setCoverUrl(item.coverUrl);
+      addHistoryItem(item);
+      try {
+        const res = await SearchApi.getSongUrl(item.musicId);
+        const songUrl = res.data?.[0]?.url;
+        if (songUrl) {
+          setUrl(songUrl);
+          setIsStart(true);
+        } else {
+          console.error('未获取到歌曲URL');
         }
-      | undefined
-  ) => {
-    if (!item) return;
-    setLoading(true);
-    setCurrentMusicId(item.musicId);
-    setMusicName(item.musicName);
-    setArtistName(item.artistName);
-    setCoverUrl(item.coverUrl);
-    addHistoryItem(item);
-    try {
-      const res = await SearchApi.getSongUrl(item.musicId);
-      const songUrl = res.data?.[0]?.url;
-      if (songUrl) {
-        setUrl(songUrl);
-        setIsStart(true);
-      } else {
-        console.error('未获取到歌曲URL');
+      } catch (error) {
+        console.error('加载歌曲URL失败:', error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('加载歌曲URL失败:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [
+      addHistoryItem,
+      setArtistName,
+      setCoverUrl,
+      setCurrentMusicId,
+      setIsStart,
+      setLoading,
+      setMusicName,
+      setUrl,
+    ]
+  );
 
   const handleProgressClick = (event: MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
@@ -139,31 +157,49 @@ export default function Player() {
     setCurrentTime(newTime);
   };
 
-  const handleSkip = async (direction: 'prev' | 'next') => {
-    if (historyList.length === 0) return;
+  const handleSkip = useCallback(
+    async (direction: 'prev' | 'next') => {
+      if (historyList.length === 0) return;
 
-    const currentIndex = historyList.findIndex(
-      (item) => item.musicId === currentMusicId
-    );
+      const currentIndex = historyList.findIndex(
+        (item) => item.musicId === currentMusicId
+      );
 
-    // 如果当前歌曲不在历史中，则默认根据方向选择队列的首尾
-    if (currentIndex === -1) {
-      if (direction === 'next') {
-        await playHistoryItem(historyList[0]);
-      } else {
-        await playHistoryItem(historyList[historyList.length - 1]);
+      // 如果当前歌曲不在历史中，则默认根据方向选择队列的首尾
+      if (currentIndex === -1) {
+        if (direction === 'next') {
+          await playHistoryItem(historyList[0]);
+        } else {
+          await playHistoryItem(historyList[historyList.length - 1]);
+        }
+        return;
       }
-      return;
-    }
 
-    if (direction === 'prev') {
-      if (currentIndex <= 0) return;
-      await playHistoryItem(historyList[currentIndex - 1]);
-    } else {
-      if (currentIndex >= historyList.length - 1) return;
-      await playHistoryItem(historyList[currentIndex + 1]);
-    }
-  };
+      if (direction === 'prev') {
+        if (currentIndex <= 0) return;
+        await playHistoryItem(historyList[currentIndex - 1]);
+      } else {
+        if (currentIndex >= historyList.length - 1) return;
+        await playHistoryItem(historyList[currentIndex + 1]);
+      }
+    },
+    [currentMusicId, historyList, playHistoryItem]
+  );
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleEnded = () => {
+      if (isLoop) return;
+      handleSkip('next');
+    };
+
+    audio.addEventListener('ended', handleEnded);
+    return () => {
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, [handleSkip, isLoop]);
 
   return (
     <div
