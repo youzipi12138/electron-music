@@ -235,12 +235,15 @@ export default function Player() {
         </div>
         <div
           className='flex items-center gap-3 w-[400px]'
-          onClick={handleProgressClick}
+          onClick={(e) => e.stopPropagation()}
         >
           <span className='text-xs text-gray-400'>
             {formatSecondsToMMSS(isFinite(currentTime) ? currentTime : 0)}
           </span>
-          <div className='h-1 flex-1 rounded-full bg-[#2f313b] overflow-hidden'>
+          <div
+            className='h-1 flex-1 rounded-full bg-[#2f313b] overflow-hidden'
+            onClick={handleProgressClick}
+          >
             <div
               className='h-full rounded-full bg-[#f43f5e] transition-all'
               style={{ width: `${progress}%` }}
