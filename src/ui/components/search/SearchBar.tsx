@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Tabs } from 'antd';
+import { Tabs, Spin } from 'antd';
 import type { TabsProps } from 'antd';
 import { SearchCard } from '@/components/search/SearchCard';
 import { useSearchStore } from '@/store/useSearchStore';
@@ -13,6 +13,7 @@ import SearchApi from '@/api/Search';
 export const SearchBar = () => {
   const [activeKey, setActiveKey] = useState<string>('综合');
   const { searchValueStore } = useSearchStore();
+  const [loading, setLoading] = useState(false);
   const [songList, setSongList] = useState([]); //单曲信息
   const [singer, setSinger] = useState(); //歌手信息
   const [albumList, setAlbumList] = useState([]); //专辑信息
@@ -73,12 +74,22 @@ export const SearchBar = () => {
     },
   ];
   useEffect(() => {
-    SearchApi.searchDefault(searchValueStore).then((res) => {
-      setSongList(res.result.song.songs);
-      console.log('111', res.result);
-      setSinger(res.result.artist.artists[0]);
-      setPlaylistList(res.result.playlist.playlists);
-    });
+    if (!searchValueStore) return;
+
+    setLoading(true);
+    SearchApi.searchDefault(searchValueStore)
+      .then((res) => {
+        setSongList(res.result.song.songs);
+        console.log('111', res.result);
+        setSinger(res.result.artist.artists[0]);
+        setPlaylistList(res.result.playlist.playlists);
+      })
+      .catch((error) => {
+        console.error('搜索失败:', error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [searchValueStore]);
   const onChange = (key: string) => {
     setActiveKey(key);
@@ -93,12 +104,14 @@ export const SearchBar = () => {
         <span className='text-gray-600'>的相关搜索如下</span>
       </div>
       <div className='bg-gray-50'>
-        <Tabs
-          activeKey={activeKey}
-          items={items}
-          onChange={onChange}
-          className='search-tabs [&_.ant-tabs-content]:h-[calc(100vh-250px)] [&_.ant-tabs-content]:overflow-auto'
-        />
+        <Spin spinning={loading} tip='加载中...'>
+          <Tabs
+            activeKey={activeKey}
+            items={items}
+            onChange={onChange}
+            className='search-tabs [&_.ant-tabs-content]:h-[calc(100vh-250px)] [&_.ant-tabs-content]:overflow-auto'
+          />
+        </Spin>
       </div>
     </div>
   );

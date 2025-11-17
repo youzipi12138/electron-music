@@ -29,6 +29,7 @@ const Header = () => {
   const [searchSuggestion, setSearchSuggestion] = useState<
     SearchSuggestionItem[]
   >([]);
+  const [popoverOpen, setPopoverOpen] = useState(false);
   const { searchValueStore, setSearchValueStore } = useSearchStore();
   // 从 localStorage 读取搜索历史
   useEffect(() => {
@@ -69,6 +70,7 @@ const Header = () => {
     console.log('搜索关键词:', keyword);
     setSearchValue(keyword);
     setSearchValueStore(keyword);
+    setPopoverOpen(false);
 
     // setSearchValueStore(keyword);
   };
@@ -185,6 +187,8 @@ const Header = () => {
           overlayInnerStyle={{ maxHeight: 620, overflowY: 'auto', padding: 0 }}
           arrow={false}
           trigger={'click'}
+          open={popoverOpen}
+          onOpenChange={setPopoverOpen}
         >
           <Input
             prefix={<SearchIcon size={20} className='text-gray-500' />}
