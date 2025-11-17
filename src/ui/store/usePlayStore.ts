@@ -17,11 +17,17 @@ interface musicPlay {
   isStart: boolean;
   loading: boolean;
   timer: number;
+  currentTime: number;
+  duration: number;
+  isLoop: boolean;
   historyList: HistoryItem[];
   setUrl: (url: string) => void;
   setIsStart: (isStart: boolean) => void;
   setLoading: (loading: boolean) => void;
   setTimer: (timer: number) => void;
+  setCurrentTime: (currentTime: number) => void;
+  setDuration: (duration: number) => void;
+  setIsLoop: (isLoop: boolean) => void;
   setCurrentMusicId: (currentMusicId: number) => void;
   setMusicName: (musicName: string) => void;
   setArtistName: (artistName: string) => void;
@@ -41,6 +47,9 @@ const usePlayStore = create<musicPlay>()(
       isStart: true,
       loading: false,
       timer: 0,
+      currentTime: 0,
+      duration: 0,
+      isLoop: false,
       historyList: [],
       setCurrentMusicId: (currentMusicId: number) => set({ currentMusicId }),
       setCoverUrl: (coverUrl: string) => set({ coverUrl }),
@@ -50,6 +59,9 @@ const usePlayStore = create<musicPlay>()(
       setIsStart: (isStart: boolean) => set({ isStart }),
       setLoading: (loading: boolean) => set({ loading }),
       setTimer: (timer: number) => set({ timer }),
+      setCurrentTime: (currentTime: number) => set({ currentTime }),
+      setDuration: (duration: number) => set({ duration }),
+      setIsLoop: (isLoop: boolean) => set({ isLoop }),
       setHistoryList: (historyList: HistoryItem[]) => set({ historyList }),
       addHistoryItem: (item: HistoryItem) =>
         set(() => {

@@ -29,9 +29,6 @@ import SearchApi from '@/api/Search';
 export default function Player() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sideDrawerOpen, setSideDrawerOpen] = useState(false);
-  const [isLoop, setIsLoop] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
   const {
     url,
@@ -42,12 +39,18 @@ export default function Player() {
     coverUrl,
     historyList,
     currentMusicId,
+    currentTime,
+    duration,
+    isLoop,
+    setIsLoop,
     setCurrentMusicId,
     setMusicName,
     setArtistName,
     setCoverUrl,
     setUrl,
     setLoading,
+    setCurrentTime,
+    setDuration,
     addHistoryItem,
   } = usePlayStore();
 
@@ -84,7 +87,7 @@ export default function Player() {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
     };
-  }, [url]);
+  }, [url, setCurrentTime, setDuration]);
 
   // 计算进度条百分比
   // isFinite(duration) 是 JavaScript 中的一个全局函数调用，用于判断变量 duration 的值是否为一个有限的数字（finite number）
@@ -263,9 +266,9 @@ export default function Player() {
           </div>
           <div className='cursor-pointer'>
             {isLoop ? (
-              <Repeat1 size={24} onClick={() => setIsLoop((prev) => !prev)} />
+              <Repeat1 size={24} onClick={() => setIsLoop(!isLoop)} />
             ) : (
-              <Repeat size={24} onClick={() => setIsLoop((prev) => !prev)} />
+              <Repeat size={24} onClick={() => setIsLoop(!isLoop)} />
             )}
           </div>
         </div>
