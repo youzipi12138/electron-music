@@ -13,11 +13,12 @@ import {
   SquareArrowOutUpRight,
   Repeat1,
 } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type MouseEvent } from 'react';
 import PlayerDrawer from './PlayerDrawer';
 import usePlayStore from '@/store/usePlayStore';
 import { formatSecondsToMMSS } from '@/ustils/Formdata';
 import SideDrawer from './SideDrawer';
+import SearchApi from '@/api/Search';
 
 export default function Player() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -26,8 +27,23 @@ export default function Player() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const { url, isStart, setIsStart, musicName, artistName, coverUrl } =
-    usePlayStore();
+  const {
+    url,
+    isStart,
+    setIsStart,
+    musicName,
+    artistName,
+    coverUrl,
+    historyList,
+    currentMusicId,
+    setCurrentMusicId,
+    setMusicName,
+    setArtistName,
+    setCoverUrl,
+    setUrl,
+    setLoading,
+    addHistoryItem,
+  } = usePlayStore();
 
   // 控制播放/暂停
   useEffect(() => {
@@ -74,6 +90,81 @@ export default function Player() {
     setIsStart(!isStart);
   };
 
+  const playHistoryItem = async (
+    item:
+      | {
+          musicId: number;
+          musicName: string;
+          artistName: string;
+          coverUrl: string;
+        }
+      | undefined
+  ) => {
+    if (!item) return;
+    setLoading(true);
+    setCurrentMusicId(item.musicId);
+    setMusicName(item.musicName);
+    setArtistName(item.artistName);
+    setCoverUrl(item.coverUrl);
+    addHistoryItem(item);
+    try {
+      const res = await SearchApi.getSongUrl(item.musicId);
+      const songUrl = res.data?.[0]?.url;
+      if (songUrl) {
+        setUrl(songUrl);
+        setIsStart(true);
+      } else {
+        console.error('未获取到歌曲URL');
+      }
+    } catch (error) {
+      console.error('加载歌曲URL失败:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleProgressClick = (event: MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    const audio = audioRef.current;
+    if (!audio || !duration || !isFinite(duration)) return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    if (rect.width === 0) return;
+
+    const clickOffset = event.clientX - rect.left;
+    const ratio = Math.min(Math.max(clickOffset / rect.width, 0), 1);
+    const newTime = ratio * duration;
+
+    audio.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+
+  const handleSkip = async (direction: 'prev' | 'next') => {
+    if (historyList.length === 0) return;
+
+    const currentIndex = historyList.findIndex(
+      (item) => item.musicId === currentMusicId
+    );
+
+    // 如果当前歌曲不在历史中，则默认根据方向选择队列的首尾
+    if (currentIndex === -1) {
+      if (direction === 'next') {
+        await playHistoryItem(historyList[0]);
+      } else {
+        await playHistoryItem(historyList[historyList.length - 1]);
+      }
+      return;
+    }
+
+    if (direction === 'prev') {
+      if (currentIndex <= 0) return;
+      await playHistoryItem(historyList[currentIndex - 1]);
+    } else {
+      if (currentIndex >= historyList.length - 1) return;
+      await playHistoryItem(historyList[currentIndex + 1]);
+    }
+  };
+
   return (
     <div
       id='player-bar'
@@ -118,7 +209,9 @@ export default function Player() {
           onClick={(e) => e.stopPropagation()}
         >
           <Heart size={24} />
-          <SkipBack size={24} />
+          <div className='cursor-pointer'>
+            <SkipBack size={24} onClick={() => handleSkip('prev')} />
+          </div>
           <div
             className='rounded-full bg-[#f43f5e] w-[40px] h-[40px] flex items-center justify-center cursor-pointer'
             onClick={handlePlay}
@@ -129,16 +222,20 @@ export default function Player() {
               <Play size={24} fill='currentColor' strokeWidth={0} />
             )}
           </div>
-          <SkipForward size={24} />
-          {isLoop ? (
-            <Repeat1 size={24} onClick={() => setIsLoop((prev) => !prev)} />
-          ) : (
-            <Repeat size={24} onClick={() => setIsLoop((prev) => !prev)} />
-          )}
+          <div className='cursor-pointer'>
+            <SkipForward size={24} onClick={() => handleSkip('next')} />
+          </div>
+          <div className='cursor-pointer'>
+            {isLoop ? (
+              <Repeat1 size={24} onClick={() => setIsLoop((prev) => !prev)} />
+            ) : (
+              <Repeat size={24} onClick={() => setIsLoop((prev) => !prev)} />
+            )}
+          </div>
         </div>
         <div
           className='flex items-center gap-3 w-[400px]'
-          onClick={(e) => e.stopPropagation()}
+          onClick={handleProgressClick}
         >
           <span className='text-xs text-gray-400'>
             {formatSecondsToMMSS(isFinite(currentTime) ? currentTime : 0)}

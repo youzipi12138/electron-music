@@ -54,10 +54,13 @@ const usePlayStore = create<musicPlay>()(
       addHistoryItem: (item: HistoryItem) =>
         set(() => {
           const prevList = get().historyList;
-          const filtered = prevList.filter(
-            (historyItem) => historyItem.musicId !== item.musicId
+          const exists = prevList.some(
+            (historyItem) => historyItem.musicId === item.musicId
           );
-          return { historyList: [item, ...filtered] };
+          if (exists) {
+            return { historyList: prevList };
+          }
+          return { historyList: [...prevList, item] };
         }),
     }),
     {
