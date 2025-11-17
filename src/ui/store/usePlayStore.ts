@@ -14,14 +14,16 @@ interface musicPlay {
   setLoading: (loading: boolean) => void;
   setTimer: (timer: number) => void;
   setCurrentMusicId: (currentMusicId: number) => void;
+  setMusicName: (musicName: string) => void;
+  setArtistName: (artistName: string) => void;
+  setCoverUrl:(coverUrl:string) => void;
 }
 // 正在播放的音乐信息
 const usePlayStore = create<musicPlay>((set) => ({
   currentMusicId: 0,
   coverUrl: 'https://i.pravatar.cc/80?img=15',
-  musicName: "我最红(I'm The Best)",
-  artistName: '노래방 (NoRaWan)',
-
+  musicName: '',
+  artistName: '',
   url: 'https://m7.music.126.net/20251112163830/6ca0a2b62c5b6fe9d3e4f4d8f78fb157/ymusic/0fd6/4f65/43ed/a8772889f38dfcb91c04da915b301617.mp3?vuutv=Xhg4pAhq8YojwqC6f871oo2Jel8QxKaybad5RoRJRpEYhz84JgfFFHfqifTyQFtGHZRqHQ+sBdPBNQq7DeX0HqOr1ABeZ5OFWaLsxqy5gZ8=',
   isStart: true,
   loading: false,
@@ -34,6 +36,7 @@ const usePlayStore = create<musicPlay>((set) => ({
   setIsStart: (isStart: boolean) => set({ isStart }),
   setLoading: (loading: boolean) => set({ loading }),
   setTimer: (timer: number) => set({ timer }),
+
 }));
 
 export default usePlayStore;

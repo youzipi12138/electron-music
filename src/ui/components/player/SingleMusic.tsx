@@ -1,19 +1,6 @@
 import { ChevronRight, Download, Heart, MoreHorizontal } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import SearchApi, { SearchType, type Song } from '@/api/Search';
-import { useSearchStore } from '@/store/useSearchStore';
-import { Play } from 'lucide-react';
 import { PlayButton } from '../common/PlayButton';
-const SingleMusic = () => {
-  const [singleMusic, setSingleMusic] = useState<Song[]>([]);
-  const { searchValueStore } = useSearchStore();
-  useEffect(() => {
-    SearchApi.search(searchValueStore, SearchType.SONG).then((res) => {
-      setSingleMusic(res.result.songs.slice(0, 6));
-      console.log(200000, res.result.songs);
-    });
-  }, [searchValueStore]);
-
+const SingleMusic = ({ songList }) => {
   return (
     <div className='w-full cursor-pointer'>
       <div className='text-[20px] font-bold text-gray-700 flex items-center '>
@@ -22,28 +9,31 @@ const SingleMusic = () => {
       </div>
       <div className='body mt-4'>
         <div className='grid grid-cols-2 gap-4'>
-          {singleMusic.map((item, index) => (
+          {songList.slice(0, 6).map((item, index) => (
             <div
               className='left h-[80px] hover:bg-gray-200 rounded-lg p-2  w-full flex items-center group'
               key={index}
             >
               <div className='w-[60px] h-[60px] rounded-lg overflow-hidden mr-2 relative'>
                 <img
-                  src={item.album.artist.img1v1Url}
+                  src={item.al.picUrl}
                   alt='专辑封面'
                   className='w-full h-full object-cover'
                 />
                 <div className='absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200'>
-                  <PlayButton musicId={item.id} />
+                  <PlayButton
+                    musicId={item.id}
+                    musicName={item.name}
+                    artistName={item.name}
+                    coverImgurl={item.al.picUrl}
+                  />
                 </div>
               </div>
               <div className='flex flex-col gap-1'>
                 <span className='text-sm font-bold text-gray-700'>
-                  {item.name}
+                  {item.al.name}
                 </span>
-                <span className='text-sm text-gray-500'>
-                  {item.artists[0].name}
-                </span>
+                <span className='text-sm text-gray-500'>{item.name}</span>
               </div>
               <div className='flex items-center gap-4 ml-auto mr-2 text-gray-400'>
                 <Download size={20} />

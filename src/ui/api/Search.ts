@@ -120,6 +120,20 @@ export interface GetSongUrlResponse {
   code: number;
   data: { url: string }[];
 }
+export interface songDefault {
+  id: number;
+  name: string;
+  artists: Artist[];
+  album: Album;
+}
+export interface SearchDefaultResponse {
+  code: number;
+  result: {
+    song: {
+      songs: songDefault[];
+    };
+  };
+}
 
 const SearchApi = {
   hotMusic() {
@@ -173,6 +187,9 @@ const SearchApi = {
   },
   getSongUrl(id: number): Promise<GetSongUrlResponse> {
     return get<GetSongUrlResponse>(`/song/url?id=${id}`);
+  },
+  searchDefault(keywords: string) {
+    return get<SearchDefaultResponse>(`/search?keywords=${keywords}&type=1018`);
   },
 };
 

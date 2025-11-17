@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 import { SearchCard } from '@/components/search/SearchCard';
@@ -9,20 +9,24 @@ import { MusicList } from '@/components/player/MusicList';
 import { SingleList } from '@/components/player/SingleList';
 import { AlumbList } from '@/components/media/AlumbList';
 import { UserList } from '@/components/user/UserList';
+import SearchApi from '@/api/Search';
 export const SearchBar = () => {
   const [activeKey, setActiveKey] = useState<string>('综合');
   const { searchValueStore } = useSearchStore();
+  const [songList, setSongList] = useState([]); //单曲信息
+  const [singer, setSinger] = useState(); //歌手信息
+  const [albumList, setAlbumList] = useState([]); //专辑信息
+  const [mvList, setMvList] = useState([]); //MV信息
+  const [userList, setUserList] = useState([]); //用户信息
+  const [playlistList, setPlaylistList] = useState([]); //歌单
   const items: TabsProps['items'] = [
     {
       key: '综合',
       label: '综合',
       children: (
         <div>
-          <SearchCard
-            name={searchValueStore}
-            stats={{ songs: 10000, fans: '10000' }}
-          />
-          <SingleMusic />
+          <SearchCard singer={singer} />
+          <SingleMusic songList={songList} />
           <MusicList />
           <SingleList />
           <AlumbList />
@@ -68,7 +72,14 @@ export const SearchBar = () => {
       label: '用户',
     },
   ];
-
+  useEffect(() => {
+    SearchApi.searchDefault(searchValueStore).then((res) => {
+      setSongList(res.result.song.songs);
+      console.log('111', res.result);
+      setSinger(res.result.artist.artists[0]);
+      setPlaylistList(res.result.playlist.playlists);
+    });
+  }, [searchValueStore]);
   const onChange = (key: string) => {
     setActiveKey(key);
   };

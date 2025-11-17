@@ -11,20 +11,23 @@ import {
   ListChevronsDownUp,
   Download,
   SquareArrowOutUpRight,
+  Repeat1,
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import PlayerDrawer from './PlayerDrawer';
 import usePlayStore from '@/store/usePlayStore';
 import { formatSecondsToMMSS } from '@/ustils/Formdata';
-
-const coverUrl = 'https://i.pravatar.cc/80?img=15';
+import SideDrawer from './SideDrawer';
 
 export default function Player() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sideDrawerOpen, setSideDrawerOpen] = useState(false);
+  const [isLoop, setIsLoop] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const { url, isStart, setIsStart } = usePlayStore();
+  const { url, isStart, setIsStart, musicName, artistName, coverUrl } =
+    usePlayStore();
 
   // 控制播放/暂停
   useEffect(() => {
@@ -72,11 +75,14 @@ export default function Player() {
   };
 
   return (
-    <div className='h-[80px] bg-[#1f2129] text-white px-6 flex  shadow-inner'>
-      <audio ref={audioRef} src={url}></audio>
+    <div
+      id='player-bar'
+      className='h-[80px] bg-[#1f2129] text-white px-6 flex  shadow-inner'
+    >
+      <audio ref={audioRef} src={url} loop={isLoop}></audio>
       <div className='flex items-center w-[160px]'>
         <div className='left relative mr-4'>
-          <span className='absolute inset-0 rounded-full bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 blur-sm opacity-80' />
+          <span className='absolute inset-0 rounded-full bg-linear-to-br from-pink-400 via-purple-400 to-blue-400 blur-sm opacity-80' />
           <span className='relative flex h-14 w-14 items-center justify-center rounded-full bg-[#232532]'>
             <img
               src={coverUrl}
@@ -86,7 +92,15 @@ export default function Player() {
           </span>
         </div>
         <div className='right flex flex-col gap-2 w-[210px] h-[60px]'>
-          <div className=''>我是一个大西瓜</div>
+          <div className='flex gap-1.5'>
+            <div className='overflow-hidden text-ellipsis whitespace-nowrap'>
+              {musicName}
+            </div>
+            <div className='overflow-hidden text-ellipsis whitespace-nowrap text-gray-400'>
+              {artistName}
+            </div>
+          </div>
+
           <div className='flex gap-6 text-gray-400'>
             <ListChevronsDownUp size={20} />
             <MessageCircleMore size={20} />
@@ -116,7 +130,11 @@ export default function Player() {
             )}
           </div>
           <SkipForward size={24} />
-          <Repeat size={24} />
+          {isLoop ? (
+            <Repeat1 size={24} onClick={() => setIsLoop((prev) => !prev)} />
+          ) : (
+            <Repeat size={24} onClick={() => setIsLoop((prev) => !prev)} />
+          )}
         </div>
         <div
           className='flex items-center gap-3 w-[400px]'
@@ -137,8 +155,8 @@ export default function Player() {
         </div>
       </div>
       <div className='right h-full flex items-center w-[160px]'>
-        <div className='mr-4'>
-          <ListMusic size={24} />
+        <div className='mr-4 cursor-pointer'>
+          <ListMusic size={24} onClick={() => setSideDrawerOpen(true)} />
         </div>
         <div className='mr-2'>
           <Volume2 size={24} />
@@ -150,6 +168,10 @@ export default function Player() {
         </div>
       </div>
       <PlayerDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <SideDrawer
+        open={sideDrawerOpen}
+        onClose={() => setSideDrawerOpen(false)}
+      />
     </div>
   );
 }
