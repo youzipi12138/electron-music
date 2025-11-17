@@ -134,6 +134,12 @@ export interface SearchDefaultResponse {
     };
   };
 }
+export interface SearchLyricsResponse {
+  code: number;
+  lrc: {
+    lyric: string;
+  };
+}
 
 const SearchApi = {
   hotMusic() {
@@ -190,6 +196,9 @@ const SearchApi = {
   },
   searchDefault(keywords: string) {
     return get<SearchDefaultResponse>(`/search?keywords=${keywords}&type=1018`);
+  },
+  searchLyrics(id: number) {
+    return get<SearchLyricsResponse>(`/lyric?id=${id}`);
   },
 };
 

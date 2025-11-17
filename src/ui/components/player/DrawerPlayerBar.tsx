@@ -28,6 +28,7 @@ export default function DrawerPlayerBar() {
     duration,
     isLoop,
     setIsLoop,
+    coverUrl,
     setCurrentMusicId,
     setMusicName,
     setArtistName,
@@ -150,14 +151,26 @@ export default function DrawerPlayerBar() {
         />
       </div>
       <div className='h-[72px] px-6 flex items-center justify-between'>
-        <div className='flex items-center gap-5 text-gray-300 w-[250px]'>
-          <ListChevronsDownUp size={20} />
-          <MessageCircleMore size={20} />
-          <SquareArrowOutUpRight size={20} />
-          <Download size={20} />
-          <div className='text-xs text-gray-400 ml-2'>
-            {formatSecondsToMMSS(isFinite(currentTime) ? currentTime : 0)} /{' '}
-            {formatSecondsToMMSS(isFinite(duration) ? duration : 0)}
+        <div className='flex items-center gap-4 w-[250px]'>
+          {/* <div className='relative mr-3'>
+            <span className='absolute inset-0 rounded-full bg-linear-to-br from-pink-400 via-purple-400 to-blue-400 blur-sm opacity-80' />
+            <span className='relative flex h-14 w-14 items-center justify-center rounded-full bg-[#232532]'>
+              <img
+                src={coverUrl}
+                alt='专辑封面'
+                className='h-10 w-10 rounded-full object-cover'
+              />
+            </span>
+          </div> */}
+          <div className='flex items-center gap-5 text-gray-300'>
+            <ListChevronsDownUp size={20} />
+            <MessageCircleMore size={20} />
+            <SquareArrowOutUpRight size={20} />
+            <Download size={20} />
+            <div className='text-xs text-gray-400 ml-2'>
+              {formatSecondsToMMSS(isFinite(currentTime) ? currentTime : 0)} /{' '}
+              {formatSecondsToMMSS(isFinite(duration) ? duration : 0)}
+            </div>
           </div>
         </div>
 
